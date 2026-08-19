@@ -2,13 +2,50 @@
 
 SketchyBar の表示項目・並び順・見た目を GUI で編集する macOS メニューバー常駐アプリです。
 
-## 要件
+## スクリーンショット
 
-- macOS 14 以上
-- [XcodeGen](https://github.com/yonaskolb/XcodeGen)
-- SketchyBar（Homebrew 経由のインストールを想定）
+<!-- TODO: スクリーンショットを追加する（例: docs/screenshots/settings-panel.png） -->
+
+## 目的
+
+SketchyBar の `sketchybarrc` を手編集せずに、ウィジェットの ON/OFF・配置・スタイル・バー外観を視覚的に設定し、ワンクリックで適用できるようにします。
+
+## 必要環境
+
+| 項目 | 要件 |
+|---|---|
+| OS | macOS 14 以上 |
+| Xcode | Swift 5.9 対応版（Command Line Tools 以上） |
+| [XcodeGen](https://github.com/yonaskolb/XcodeGen) | `project.yml` から `.xcodeproj` を生成 |
+| [SketchyBar](https://github.com/FelixKratz/SketchyBar) | メニューバー表示の本体（適用時に再起動） |
+
+### 依存ツールの導入
+
+XcodeGen（Homebrew core）:
+
+```bash
+brew install xcodegen
+```
+
+SketchyBar（[felixkratz/formulae](https://github.com/FelixKratz/homebrew-formulae) タップ）:
+
+```bash
+brew tap felixkratz/formulae
+brew install sketchybar
+brew services start sketchybar
+```
+
+Intel Mac では Homebrew のパスが `/usr/local` になる場合があります。アプリは既定で `/opt/homebrew/bin/brew` と `/opt/homebrew/bin/sketchybar` を参照します。
+
+## SketchyBar の前提
+
+- SketchyBar がインストール済みで、通常は Homebrew の `brew services` で管理されていること
+- 適用時に `~/.config/sketchybar/sketchybarrc` を再生成し、同梱の `spotify.sh` を `~/.config/sketchybar/plugins/` へ同期します
+- 再起動は `brew services restart sketchybar` で行います
 
 ## ビルド
+
+リポジトリには `.xcodeproj` を含めません。必ず XcodeGen で生成してください。
 
 ```bash
 xcodegen generate
@@ -18,6 +55,8 @@ xcodebuild -project SketchyBarSettings.xcodeproj \
   -derivedDataPath .build \
   build
 ```
+
+ビルド成果物: `.build/Build/Products/Debug/SketchyBarSettings.app`
 
 ## テスト
 
@@ -29,11 +68,15 @@ xcodebuild -project SketchyBarSettings.xcodeproj \
   test
 ```
 
-テストは `TemplateRenderer` / `SettingsStore` / `SketchyBarApplier` のモック境界を検証します。実環境の SketchyBar 再起動は行いません。
+テストは `TemplateRenderer` / `SettingsStore` / `SketchyBarApplier` のモック境界を検証します。**実環境の SketchyBar 再起動は行いません。**
 
-## 起動
+## 起動・適用
 
-Xcode から `SketchyBar Settings` スキームを Run するか、ビルド成果物を起動します。
+Xcode から `SketchyBarSettings` スキームを Run するか、ビルド成果物を起動します。
+
+```bash
+open .build/Build/Products/Debug/SketchyBarSettings.app
+```
 
 - Dock には表示されません（`LSUIElement = true`）
 - メニューバーのスライダーアイコンから設定パネルを開きます
@@ -45,17 +88,17 @@ Xcode から `SketchyBar Settings` スキームを Run するか、ビルド成�
 |---|---|
 | アプリ内設定（JSON） | UserDefaults キー `sketchybar.settings.v1` |
 | 生成先 rc | `~/.config/sketchybar/sketchybarrc` |
-| プラグイン（適用時に同期） | `~/.config/sketchybar/plugins/spotify.sh`（同梱版を上書きコピーし、実行権限 0755 を付与） |
+| プラグイン（適用時に同期） | `~/.config/sketchybar/plugins/spotify.sh` |
 
 生成された `sketchybarrc` 先頭には `DO NOT EDIT BY HAND` コメントが付きます。生成元はアプリ同梱の `SketchyBarSettings/Resources/sketchybarrc.template` で、バー設定やウィジェット配置はプレースホルダー置換で反映されます。高度なカスタムはテンプレートと `WidgetCatalog` の編集で対応します。
 
 ### Spotify カバーと `spotify.sh`
 
-`spotify_cover` の width / height / scale / corner_radius は **sketchybarrc の初期設定**で決まります。以前の `spotify.sh` はメディア更新のたびに `background.image.scale=0.05` 等を上書きしていたため、アプリでカバーサイズを変えても表示が変わりませんでした。同梱 `Resources/plugins/spotify.sh` は画像パスと drawing の更新のみ行い、サイズ関連プロパティは rc を尊重します。「適用」時にこのスクリプトを plugins へコピーし、実行権限を付与します（`copyItem` では権限が保持されないため明示的に `chmod 755` 相当を行います）。
+`spotify_cover` の width / height / scale / corner_radius は **sketchybarrc の初期設定**で決まります。同梱 `Resources/plugins/spotify.sh` は画像パスと drawing の更新のみ行い、サイズ関連プロパティは rc を尊重します。「適用」時にこのスクリプトを plugins へコピーし、実行権限を付与します。
 
 ### アースカラーパレット
 
-バー背景色・項目テキスト色・項目背景色の Hex 入力欄の下に、クリック可能な丸スウォッチを表示します。ColorWell が動作しない環境でもプリセットと Hex 入力で設定できます。プリセット選択は即座に UserDefaults へ保存されます。
+バー背景色・項目テキスト色・項目背景色の Hex 入力欄の下に、クリック可能な丸スウォッチを表示します。
 
 | 名称 | Hex |
 |---|---|
@@ -68,19 +111,17 @@ Xcode から `SketchyBar Settings` スキームを Run するか、ビルド成�
 | 深い森 | `0xFF283618` |
 | 透明 | `0x00000000` |
 
-パネル背景など不透明度を持つ用途では `0xAARRGGBB` 形式（例: `0xD02A2A37`）を維持します。
-
 ### ウィジェット背景
 
-各ウィジェットに `backgroundEnabled` / `backgroundHex` を設定できます。`backgroundEnabled=true` のとき `background.drawing=on` と色・角丸・高さを sketchybarrc に生成します。Spotify 本文と `spotify_cover` は同一の背景色設定を共有します。既定値は Spotify のみ背景表示 ON（`0xD02A2A37`）、他ウィジェットは OFF です。
+各ウィジェットに `backgroundEnabled` / `backgroundHex` を設定できます。Spotify 本文と `spotify_cover` は同一の背景色設定を共有します。
 
-## MVP 機能
+## 主な機能
 
 - ウィジェット ON/OFF、左/中央/右配置、配置内の並び順（ドラッグ&ドロップ + 上下ボタン）
-- バー: 高さ、y_offset、角丸、背景色（アースカラーパレット + NSColorWell + Hex）、シャドウ、左右パディング、項目間隔（Slider + 数値表示）
+- バー: 高さ、y_offset、角丸、背景色、シャドウ、左右パディング、項目間隔
 - Spotify カバー（`spotify_cover`）サイズ: 16〜64 pt
-- 項目スタイル: 色（アースカラーパレット + NSColorWell + Hex）、フォントファミリー、フォントサイズ、アイコン表示
-- 項目背景: 背景表示 on/off、背景色（アースカラーパレット + Hex）。Spotify は既定で背景表示 ON
+- 項目スタイル: 色、フォントファミリー、フォントサイズ、アイコン表示
+- 項目背景: 背景表示 on/off、背景色
 - デフォルトへリセット、適用時の成功/エラー表示
 
 対象ウィジェット: `date` / `clock` / `volume` / `audio_output` / `ai_usage` / `umi_icon` / `umi_status` / `spotify` / `battery`
@@ -92,6 +133,12 @@ Xcode から `SketchyBar Settings` スキームを Run するか、ビルド成�
 - SoundSource エイリアスなど環境依存の設定は生成 rc 内コメントとして残します
 - サンドボックスは無効（`~/.config/sketchybar/` への書き込みと `brew` 実行のため）
 
+## 既知の注意点
+
+- 「適用」は実際の SketchyBar 設定を上書きします。事前に `sketchybarrc` のバックアップを推奨します
+- `umi_icon` / `umi_status` / `ai_usage` などは個人環境向けのウィジェット定義を含みます。不要な項目は OFF にしてください
+- ColorWell が動作しない環境では、アースカラーパレットと Hex 入力で色を設定できます
+
 ## プロジェクト構成
 
 ```
@@ -99,7 +146,7 @@ Xcode から `SketchyBar Settings` スキームを Run するか、ビルド成�
 ├── SketchyBarSettings/
 │   ├── App/
 │   ├── Models/
-│   ├── Utilities/                # SketchyBarColorHex, FontFamilies, EarthColorCatalog
+│   ├── Utilities/
 │   ├── Resources/
 │   │   ├── sketchybarrc.template
 │   │   └── plugins/
@@ -108,3 +155,11 @@ Xcode から `SketchyBar Settings` スキームを Run するか、ビルド成�
 │   └── Views/
 └── SketchyBarSettingsTests/
 ```
+
+## 貢献
+
+バグ報告・機能提案・Pull Request を歓迎します。詳細は [CONTRIBUTING.md](CONTRIBUTING.md) を参照してください。
+
+## ライセンス
+
+[MIT License](LICENSE) — Copyright (c) 2026 Takumi Kato
