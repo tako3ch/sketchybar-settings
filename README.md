@@ -11,7 +11,6 @@ SketchyBar の表示項目・並び順・見た目を GUI で編集する macOS 
 ## ビルド
 
 ```bash
-cd 03_src
 xcodegen generate
 xcodebuild -project SketchyBarSettings.xcodeproj \
   -scheme SketchyBarSettings \
@@ -23,7 +22,6 @@ xcodebuild -project SketchyBarSettings.xcodeproj \
 ## テスト
 
 ```bash
-cd 03_src
 xcodebuild -project SketchyBarSettings.xcodeproj \
   -scheme SketchyBarSettings \
   -destination 'platform=macOS' \
@@ -97,7 +95,6 @@ Xcode から `SketchyBar Settings` スキームを Run するか、ビルド成�
 ## プロジェクト構成
 
 ```
-03_src/
 ├── project.yml
 ├── SketchyBarSettings/
 │   ├── App/

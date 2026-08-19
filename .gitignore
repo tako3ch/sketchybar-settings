@@ -15,3 +15,6 @@ xcuserdata/
 *.mobileprovision
 .env
 .env.*
+
+# Internal design notes (kept locally, not published)
+00_docs/
