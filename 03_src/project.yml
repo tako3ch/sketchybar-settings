@@ -1,0 +1,56 @@
+name: SketchyBarSettings
+options:
+  bundleIdPrefix: com.tako3
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+targets:
+  SketchyBarSettings:
+    type: application
+    platform: macOS
+    sources:
+      - SketchyBarSettings
+    resources:
+      - SketchyBarSettings/Resources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.tako3.sketchybarsettings
+        PRODUCT_NAME: SketchyBarSettings
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGN_STYLE: Automatic
+        SWIFT_VERSION: "5.9"
+        MACOSX_DEPLOYMENT_TARGET: "14.0"
+        ENABLE_TESTABILITY: YES
+    info:
+      path: SketchyBarSettings/Info.plist
+      properties:
+        LSUIElement: true
+        CFBundleDisplayName: SketchyBar Settings
+        NSHighResolutionCapable: true
+    entitlements:
+      path: SketchyBarSettings/SketchyBarSettings.entitlements
+      properties:
+        com.apple.security.app-sandbox: false
+  SketchyBarSettingsTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - SketchyBarSettingsTests
+    dependencies:
+      - target: SketchyBarSettings
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        SWIFT_VERSION: "5.9"
+        MACOSX_DEPLOYMENT_TARGET: "14.0"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/SketchyBarSettings.app/Contents/MacOS/SketchyBarSettings"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+schemes:
+  SketchyBarSettings:
+    build:
+      targets:
+        SketchyBarSettings: all
+        SketchyBarSettingsTests: [test]
+    test:
+      targets:
+        - SketchyBarSettingsTests
