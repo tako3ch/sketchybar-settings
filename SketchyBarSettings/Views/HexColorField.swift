@@ -1,7 +1,7 @@
 import SwiftUI
 import AppKit
 
-/// MenuBarExtra 上でも確実に開ける AppKit カラーピッカー。
+/// SwiftUI の ColorPicker ではなく、AppKit の NSColorWell を使うカラーピッカー。
 struct AppKitColorWell: NSViewRepresentable {
     @Binding var hex: String
     let fallbackHex: String

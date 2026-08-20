@@ -1,6 +1,6 @@
 # SketchyBar Settings
 
-SketchyBar の表示項目・並び順・見た目を GUI で編集する macOS メニューバー常駐アプリです。
+SketchyBar の表示項目・並び順・見た目を GUI で編集する macOS 設定アプリです。
 
 ## スクリーンショット
 
@@ -78,8 +78,8 @@ Xcode から `SketchyBarSettings` スキームを Run するか、ビルド成�
 open .build/Build/Products/Debug/SketchyBarSettings.app
 ```
 
-- Dock には表示されません（`LSUIElement = true`）
-- メニューバーのスライダーアイコンから設定パネルを開きます
+- 起動すると設定ウィンドウが開きます（Dock からも再度起動できます）
+- SketchyBar 本体はメニューバーに表示されます（このアプリは設定 UI のみを担当します）
 - 「適用」で `~/.config/sketchybar/sketchybarrc` を再生成し、同梱 `spotify.sh` を `~/.config/sketchybar/plugins/` へ同期（実行権限を付与）、`brew services restart sketchybar` を実行します
 
 ## 設定ファイル
